@@ -22,6 +22,7 @@ add_service_files(
         MowerControlSrv.srv
         HighLevelControlSrv.srv
 	PerimeterControlSrv.srv
+        StartInAreaSrv.srv
 )
 
 ## Generate added messages and services with any dependencies listed here
