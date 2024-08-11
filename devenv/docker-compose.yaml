@@ -1,5 +1,6 @@
 services:
   ros:
+    network_mode: "host"
     build:
       context: ..
       dockerfile: devenv/Dockerfile
