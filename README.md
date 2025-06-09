@@ -94,4 +94,4 @@ Copy the settings for **Build directory** and **CMake options**. Everything else
 - If the map has no docking point set, planning crashes as soon as we try to approach the docking point. TODO: check, before even starting to mow.
 # License
 
-This project is licensed under the [GNU General Public License version 3](https://www.gnu.org/licenses/gpl-3.0.html). See the [LICENSE](LICENSE) file for details.
+This work is licensed under the [GNU General Public License version 3](https://www.gnu.org/licenses/gpl-3.0.html). See the [LICENSE](LICENSE) file for details.
