@@ -1,6 +1,6 @@
 //
 // Created by Clemens Elflein on 15.03.22.
-// Copyright (c) 2022 Clemens Elflein and OpenMower Contributors. All rights reserved.
+// Copyright (c) 2022 Clemens Elflein and OpenMower contributors. All Rights Reserved.
 //
 // This file is part of OpenMower.
 //
