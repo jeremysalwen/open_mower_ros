@@ -73,12 +73,14 @@ void fetchDock(const ros::TimerEvent &timer_event) {
     geometry_msgs::PoseWithCovarianceStamped docking_pose_stamped;
 
     bool last_has_dock = has_dock;
-    if(docking_point_client.call(get_docking_point_srv)) {
-        has_dock = true;
-        dockX = get_docking_point_srv.response.docking_pose.position.x;
-        dockY = get_docking_point_srv.response.docking_pose.position.y;
-    } else {
-        has_dock = false;
+    if(!has_dock) {
+        if(docking_point_client.call(get_docking_point_srv)) {
+            has_dock = true;
+            dockX = get_docking_point_srv.response.docking_pose.position.x;
+            dockY = get_docking_point_srv.response.docking_pose.position.y;
+        } else {
+            has_dock = false;
+        }
     }
 
     if(last_has_dock != has_dock) {

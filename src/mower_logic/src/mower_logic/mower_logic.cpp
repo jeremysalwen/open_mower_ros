@@ -23,6 +23,7 @@
 #include "mower_map/GetDockingPointSrv.h"
 #include "mower_map/SetDockingPointSrv.h"
 #include "mower_map/ClearNavPointSrv.h"
+#include "mower_map/PersistNextGlobalPlanSrv.h"
 #include "mower_map/SetNavPointSrv.h"
 #include <actionlib/client/simple_action_client.h>
 #include <tf2/LinearMath/Transform.h>
@@ -54,7 +55,8 @@
 #include <sstream>
 #include <ios>
 
-ros::ServiceClient pathClient, mapClient, dockingPointClient, gpsClient, mowClient, emergencyClient, pathProgressClient, setNavPointClient, clearNavPointClient, clearMapClient, positioningClient, actionRegistrationClient;
+ros::ServiceClient pathClient, mapClient, dockingPointClient, gpsClient, mowClient, emergencyClient, pathProgressClient,
+    setNavPointClient, clearNavPointClient, clearMapClient, positioningClient, actionRegistrationClient, persistGPlanClient;
 
 ros::NodeHandle *n;
 ros::NodeHandle *paramNh;
@@ -604,6 +606,8 @@ int main(int argc, char **argv) {
             "mower_map_service/get_mowing_area");
     clearMapClient = n->serviceClient<mower_map::ClearMapSrv>(
             "mower_map_service/clear_map");
+    persistGPlanClient = n->serviceClient<mower_map::PersistNextGlobalPlanSrv>(
+            "mower_map_service/persist_next_global_plan");
 
     gpsClient = n->serviceClient<xbot_positioning::GPSControlSrv>(
             "xbot_positioning/set_gps_state");

@@ -1,5 +1,7 @@
+/move_base_flex/global_costmap/static_layer/trinary_costmap: false
 global_costmap:
   inflation_radius: 1.0
+  cost_scaling_factor: 5.0
   global_frame: map
   robot_base_frame: base_link
   update_frequency: 1.0

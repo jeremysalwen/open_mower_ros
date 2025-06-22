@@ -63,6 +63,9 @@ bool allow_send = false;
 // Current speeds (duty cycle) for the three ESCs
 float speed_l = 0, speed_r = 0, speed_mow = 0;
 
+//conversion factor from m/s to duty cycle
+double m_per_s_to_duty_cycle = 1.0;
+
 // Ticks / m and wheel distance for this robot
 double wheel_ticks_per_m = 0.0;
 double wheel_distance_m = 0.0;
