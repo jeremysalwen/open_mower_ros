@@ -17,8 +17,10 @@
 #include <mower_msgs/Power.h>
 
 #include "PerimeterDocking.h"
+#include "mower_map/ClearNavPointSrv.h"
 
 extern ros::ServiceClient dockingPointClient;
+extern ros::ServiceClient clearNavPointClient;
 extern actionlib::SimpleActionClient<mbf_msgs::MoveBaseAction> *mbfClient;
 extern actionlib::SimpleActionClient<mbf_msgs::ExePathAction> *mbfClientExePath;
 extern mower_msgs::Status getStatus();
@@ -50,6 +52,8 @@ bool DockingBehavior::approach_docking_point() {
   tf2::Matrix3x3 m(quat);
   double roll, pitch, yaw;
   m.getRPY(roll, pitch, yaw);
+
+  geometry_msgs::PoseStamped docking_approach_point = docking_pose_stamped;
 
   // Get the approach start point
   {
@@ -259,6 +263,12 @@ Behavior *DockingBehavior::execute() {
     ROS_ERROR("Giving up on docking");
     // Reset retryCount
     reset();
+
+    // update costmap so the next path uses new persist data
+    // do here so that it's ready for next undocking move without slowing things
+    ROS_INFO_STREAM("Recalculating costmap");
+    mower_map::ClearNavPointSrv clear_nav_point_srv;
+    clearNavPointClient.call(clear_nav_point_srv);
     return &IdleBehavior::INSTANCE;
   }
 
