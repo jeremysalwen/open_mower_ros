@@ -53,8 +53,6 @@ bool DockingBehavior::approach_docking_point() {
   double roll, pitch, yaw;
   m.getRPY(roll, pitch, yaw);
 
-  geometry_msgs::PoseStamped docking_approach_point = docking_pose_stamped;
-
   // Get the approach start point
   {
     geometry_msgs::PoseStamped docking_approach_point = docking_pose_stamped;
