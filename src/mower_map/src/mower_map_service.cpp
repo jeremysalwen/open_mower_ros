@@ -548,6 +548,8 @@ void buildMap() {
       persistAreaTypes = {"persist"};
     else if (persist_mode == ePersistMode::NAV_AREAS)
       persistAreaTypes = {"nav"};
+    else if (persist_mode == ePersistMode::MAP_AREAS)
+      persistAreaTypes = {"nav", "mow"};
     else
       persistAreaTypes = {"mow"};
 
