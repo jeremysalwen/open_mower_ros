@@ -411,13 +411,17 @@ void buildMap() {
   }
 
   if (persist_mode != ePersistMode::NONE) {
-    std::vector<mower_map::MapArea> *areas;
-    if (persist_mode == ePersistMode::PERSIST_AREAS)
-      areas = &persist_areas;
-    else if (persist_mode == ePersistMode::NAV_AREAS)
-      areas = &navigation_areas;
-    else
-      areas = &mowing_areas;
+    std::vector<std::vector<mower_map::MapArea> *> areaLists;
+    if (persist_mode == ePersistMode::PERSIST_AREAS) {
+      areaLists.push_back(&persist_areas);
+    } else if (persist_mode == ePersistMode::NAV_AREAS) {
+      areaLists.push_back(&navigation_areas);
+    } else if (persist_mode == ePersistMode::MAP_AREAS) {
+      areaLists.push_back(&navigation_areas);
+      areaLists.push_back(&mowing_areas);
+    } else {
+      areaLists.push_back(&mowing_areas);
+    }
 
     for (int j = 0; j < PersistencePaths.size(); j++) {
       if (PersistencePaths[j].poses.size() >= 2) {
@@ -426,30 +430,31 @@ void buildMap() {
                                       PersistencePaths[j].poses[i].pose.position.y);
           grid_map::Position endPos(PersistencePaths[j].poses[i + 1].pose.position.x,
                                     PersistencePaths[j].poses[i + 1].pose.position.y);
-
-          for (auto randomArea : *areas) {
-            grid_map::Polygon poly;
-            fromMessage(randomArea.area, poly);
-            if (poly.isInside(startPos) && poly.isInside(endPos)) {
-              for (grid_map::LineIterator iterator(map, startPos, endPos); !iterator.isPastEnd(); ++iterator) {
-                const grid_map::Index index(*iterator);
-                double cost = 0.3 + ((0.4 * (j + 1)) / PersistencePaths.size());
-                data(index[0], index[1]) = cost;
-                // Add a blur
-                // Note - can't use cv::blur as it creates narrow routes outside the perimeters that the planner can
-                // creep through Note - map is extended past area edges so using +-1 on data index without a check
-                // should be fine immediate neighbours at half density
-                cost *= 0.5;
-                data(index[0] + 1, index[1]) = std::max((double)data(index[0] + 1, index[1]), cost);
-                data(index[0] - 1, index[1]) = std::max((double)data(index[0] - 1, index[1]), cost);
-                data(index[0], index[1] + 1) = std::max((double)data(index[0], index[1] + 1), cost);
-                data(index[0], index[1] - 1) = std::max((double)data(index[0], index[1] - 1), cost);
-                // diagonal neighbours at 0.5/sqrt(2) density
-                cost *= 0.71;
-                data(index[0] + 1, index[1] + 1) = std::max((double)data(index[0] + 1, index[1] + 1), cost);
-                data(index[0] - 1, index[1] + 1) = std::max((double)data(index[0] - 1, index[1] + 1), cost);
-                data(index[0] + 1, index[1] - 1) = std::max((double)data(index[0] + 1, index[1] - 1), cost);
-                data(index[0] - 1, index[1] - 1) = std::max((double)data(index[0] - 1, index[1] - 1), cost);
+          for (auto areaList : areaLists) {
+            for (auto area : *areaList) {
+              grid_map::Polygon poly;
+              fromMessage(area.area, poly);
+              if (poly.isInside(startPos) && poly.isInside(endPos)) {
+                for (grid_map::LineIterator iterator(map, startPos, endPos); !iterator.isPastEnd(); ++iterator) {
+                  const grid_map::Index index(*iterator);
+                  double cost = 0.3 + ((0.4 * (j + 1)) / PersistencePaths.size());
+                  data(index[0], index[1]) = cost;
+                  // Add a blur
+                  // Note - can't use cv::blur as it creates narrow routes outside the perimeters that the planner can
+                  // creep through Note - map is extended past area edges so using +-1 on data index without a check
+                  // should be fine immediate neighbours at half density
+                  cost *= 0.5;
+                  data(index[0] + 1, index[1]) = std::max((double)data(index[0] + 1, index[1]), cost);
+                  data(index[0] - 1, index[1]) = std::max((double)data(index[0] - 1, index[1]), cost);
+                  data(index[0], index[1] + 1) = std::max((double)data(index[0], index[1] + 1), cost);
+                  data(index[0], index[1] - 1) = std::max((double)data(index[0], index[1] - 1), cost);
+                  // diagonal neighbours at 0.5/sqrt(2) density
+                  cost *= 0.71;
+                  data(index[0] + 1, index[1] + 1) = std::max((double)data(index[0] + 1, index[1] + 1), cost);
+                  data(index[0] - 1, index[1] + 1) = std::max((double)data(index[0] - 1, index[1] + 1), cost);
+                  data(index[0] + 1, index[1] - 1) = std::max((double)data(index[0] + 1, index[1] - 1), cost);
+                  data(index[0] - 1, index[1] - 1) = std::max((double)data(index[0] - 1, index[1] - 1), cost);
+                }
               }
             }
           }
