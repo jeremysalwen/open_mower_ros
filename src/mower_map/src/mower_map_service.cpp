@@ -541,6 +541,12 @@ void buildMap() {
     }
   }
 
+  cv::Mat cv_map;
+  grid_map::GridMapCvConverter::toImage<unsigned char, 1>(map, "navigation_area", CV_8UC1, cv_map);
+
+  // Create a separate image for just the paths
+  cv::Mat path_image = cv::Mat::zeros(cv_map.size(), CV_8UC1);
+
   if (persist_mode != ePersistMode::NONE) {
     // Determine which area type(s) the persisted paths must lie within.
     std::vector<std::string> persistAreaTypes;
@@ -569,23 +575,8 @@ void buildMap() {
             if (poly.isInside(startPos) && poly.isInside(endPos)) {
               for (grid_map::LineIterator iterator(map, startPos, endPos); !iterator.isPastEnd(); ++iterator) {
                 const grid_map::Index index(*iterator);
-                double cost = 0.3 + ((0.4 * (j + 1)) / PersistencePaths.size());
-                data(index[0], index[1]) = cost;
-                // Add a blur
-                // Note - can't use cv::blur as it creates narrow routes outside the perimeters that the planner can
-                // creep through Note - map is extended past area edges so using +-1 on data index without a check
-                // should be fine immediate neighbours at half density
-                cost *= 0.5;
-                data(index[0] + 1, index[1]) = std::max((double)data(index[0] + 1, index[1]), cost);
-                data(index[0] - 1, index[1]) = std::max((double)data(index[0] - 1, index[1]), cost);
-                data(index[0], index[1] + 1) = std::max((double)data(index[0], index[1] + 1), cost);
-                data(index[0], index[1] - 1) = std::max((double)data(index[0], index[1] - 1), cost);
-                // diagonal neighbours at 0.5/sqrt(2) density
-                cost *= 0.71;
-                data(index[0] + 1, index[1] + 1) = std::max((double)data(index[0] + 1, index[1] + 1), cost);
-                data(index[0] - 1, index[1] + 1) = std::max((double)data(index[0] - 1, index[1] + 1), cost);
-                data(index[0] + 1, index[1] - 1) = std::max((double)data(index[0] + 1, index[1] - 1), cost);
-                data(index[0] - 1, index[1] - 1) = std::max((double)data(index[0] - 1, index[1] - 1), cost);
+                double cost = 0.05 + ((0.2 * (j + 1)) / PersistencePaths.size());
+                path_image.at<uchar>(index[0], index[1]) = (uchar)(cost * 255);
               }
             }
           }
@@ -594,12 +585,13 @@ void buildMap() {
     }
   }
 
-  /*cv::Mat cv_map;
-  grid_map::GridMapCvConverter::toImage<unsigned char, 1>(map, "navigation_area", CV_8UC1, cv_map);
+  // Blur only the path image
+  cv::GaussianBlur(path_image, path_image, cv::Size(7, 7), 0);
 
-  cv::blur(cv_map, cv_map, cv::Size(3, 3));
+  // Take the maximum cost between original map and blurred paths
+  cv::max(cv_map, path_image, cv_map);
 
-  grid_map::GridMapCvConverter::addLayerFromImage<unsigned char, 1>(cv_map, "navigation_area", map);*/
+  grid_map::GridMapCvConverter::addLayerFromImage<unsigned char, 1>(cv_map, "navigation_area", map);
 
   nav_msgs::OccupancyGrid msg;
   grid_map::GridMapRosConverter::toOccupancyGrid(map, "navigation_area", 0.0, 1.0, msg);

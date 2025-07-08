@@ -5,5 +5,4 @@ global_costmap:
   rolling_window: false
   resolution: 0.10
   inflation_layer:
-    cost_scaling_factor: 5.0
     inflation_radius: 1.0
