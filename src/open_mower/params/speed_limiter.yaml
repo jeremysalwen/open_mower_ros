@@ -13,7 +13,19 @@
   kd_cs: 0.0
 
   enable_wdc: true
-  wheel_dc_limit: 0.95
+  wheel_dc_limit: 0.75
   kp_wdc: 0.0
   ki_wdc: 0.5
   kd_wdc: 0.0
+
+  enable_me: true
+  mow_esc_limit: 65
+  kp_me: 0.0
+  ki_me: 0.005
+  kd_me: 0.0
+
+  enable_mm: false
+  mow_motor_limit: 65
+  kp_mm: 0.0
+  ki_mm: 0.005
+  kd_mm: 0.0
