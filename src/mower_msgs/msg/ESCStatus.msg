@@ -8,5 +8,6 @@ uint8   status
 float32 current
 uint32  tacho
 int16   rpm
+float32 duty_cycle
 float32 temperature_motor
 float32 temperature_pcb

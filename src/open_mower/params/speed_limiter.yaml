@@ -1,0 +1,19 @@
+  debug_pid: true
+
+  enable_cc: false
+  mow_current_limit: 2.0
+  kp_cc: 0.0
+  ki_cc: 0.25
+  kd_cc: 0.0
+
+  enable_cs: true
+  mow_erpm_limit: 5850
+  kp_cs: 0.0
+  ki_cs: 0.25
+  kd_cs: 0.0
+
+  enable_wdc: true
+  wheel_dc_limit: 0.95
+  kp_wdc: 0.0
+  ki_wdc: 0.5
+  kd_wdc: 0.0

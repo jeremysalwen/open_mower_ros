@@ -66,6 +66,8 @@ pkg_check_modules(CRYPTOPP REQUIRED libcrypto++)
 add_message_files(
         FILES
         CheckPoint.msg
+        SpeedLimiterDebug.msg
+        VelocityLimit.msg
 )
 
 ## Generate services in the 'srv' folder
@@ -107,6 +109,7 @@ generate_dynamic_reconfigure_options(
         cfg/MowerLogic.cfg
         cfg/MowerOdometry.cfg
         cfg/Power.cfg
+        cfg/MowerSpeedLimiter.cfg
 )
 
 ###################################
@@ -189,6 +192,10 @@ target_link_libraries(mower_logic ${catkin_LIBRARIES} ${CRYPTOPP_LIBRARIES})
 add_executable(monitoring src/monitoring/monitoring.cpp)
 add_dependencies(monitoring ${catkin_EXPORTED_TARGETS} ${${PROJECT_NAME}_EXPORTED_TARGETS})
 target_link_libraries(monitoring ${catkin_LIBRARIES})
+
+add_executable(mower_speed_limiter src/mower_speed_limiter/mower_speed_limiter.cpp)
+add_dependencies(mower_speed_limiter ${catkin_EXPORTED_TARGETS} ${${PROJECT_NAME}_EXPORTED_TARGETS})
+target_link_libraries(mower_speed_limiter ${catkin_LIBRARIES})
 
 
 #############
