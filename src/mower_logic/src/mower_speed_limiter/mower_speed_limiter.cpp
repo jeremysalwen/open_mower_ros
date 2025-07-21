@@ -79,7 +79,7 @@ void statusReceived(const mower_msgs::Status::ConstPtr &msg) {
     if(!config.enable_cs || !msg->mow_enabled) {
         i_cs_error = 0.0; last_cs_error = 0.0;
     } else {
-        cs_error = (msg->mow_esc_status.speed_erpm - config.mow_erpm_limit)/100; //divide to keep PID constants similar order to others
+        cs_error = (std::abs(msg->mow_esc_status.speed_erpm) - config.mow_erpm_limit)/100; //divide to keep PID constants similar order to others
         if(cs_error > 4.0)
             cs_error = 4.0;
         else if(cs_error < -4.0)
@@ -91,7 +91,7 @@ void statusReceived(const mower_msgs::Status::ConstPtr &msg) {
             i_cs_error = 0.0;
         d_cs = (cs_error - last_cs_error) / dt;
         last_cs_error = cs_error;
-        cc_velocity_limit = cs_error * config.kp_cs + i_cs_error * config.ki_cs + d_cs * config.kd_cs;
+        cs_velocity_limit = cs_error * config.kp_cs + i_cs_error * config.ki_cs + d_cs * config.kd_cs;
 
         if (cs_velocity_limit > 1.0)
             cs_velocity_limit = 1.0;
@@ -126,7 +126,54 @@ void statusReceived(const mower_msgs::Status::ConstPtr &msg) {
             wdc_velocity_limit = 0.0;
     }
 
-    double velocity_limit = std::min(std::min(cc_velocity_limit, cs_velocity_limit),wdc_velocity_limit);
+    //velocity limiting based on esc temperature
+    static double i_me_error = 1.0, last_me_error = 0.0;
+    double me_velocity_limit = 1.0, me_error = 0.0, d_me = 0.0;
+    if(!config.enable_me) {
+        i_me_error = 0.0; last_me_error = 0.0;
+    } else {
+        me_error = (config.mow_esc_limit - msg->mow_esc_status.temperature_pcb);
+        i_me_error += me_error * dt;
+        if ((i_me_error * config.ki_me) > 1.0)
+            i_me_error = 1.0/config.ki_me;
+        else if (i_me_error < 0.0)
+            i_me_error = 0.0;
+        d_me = (me_error - last_me_error) / dt;
+        last_me_error = me_error;
+        me_velocity_limit = me_error * config.kp_me + i_me_error * config.ki_me + d_me * config.kd_me;
+
+        if (me_velocity_limit > 1.0)
+            me_velocity_limit = 1.0;
+        else if (me_velocity_limit < 0.0)
+            me_velocity_limit = 0.0;
+    }
+
+    //velocity limiting based on wheel DC
+    static double i_mm_error = 1.0, last_mm_error = 0.0;
+    double mm_velocity_limit = 1.0, mm_error = 0.0, d_mm = 0.0;
+    if(!config.enable_mm) {
+        i_mm_error = 0.0; last_mm_error = 0.0;
+    } else {
+        mm_error = (config.mow_motor_limit - msg->mow_esc_status.temperature_motor);
+        i_mm_error += mm_error * dt;
+        if ((i_mm_error * config.ki_mm) > 1.0)
+            i_mm_error = 1.0/config.ki_mm;
+        else if (i_mm_error < 0.0)
+            i_mm_error = 0.0;
+        d_mm = (mm_error - last_mm_error) / dt;
+        last_mm_error = mm_error;
+        mm_velocity_limit = mm_error * config.kp_mm + i_mm_error * config.ki_mm + d_mm * config.kd_mm;
+
+        if (mm_velocity_limit > 1.0)
+            mm_velocity_limit = 1.0;
+        else if (mm_velocity_limit < 0.0)
+            mm_velocity_limit = 0.0;
+    }
+
+    double velocity_limit = std::min(cc_velocity_limit, cs_velocity_limit);
+    velocity_limit = std::min(velocity_limit,wdc_velocity_limit);
+    velocity_limit = std::min(velocity_limit,me_velocity_limit);
+    velocity_limit = std::min(velocity_limit,mm_velocity_limit);
 
     mower_logic::VelocityLimit velLimMsg;
     velLimMsg.stamp = ros::Time::now();
@@ -150,9 +197,20 @@ void statusReceived(const mower_msgs::Status::ConstPtr &msg) {
         debugMsg.ki_wdc_set = i_wdc_error * config.ki_wdc;
         debugMsg.kd_wdc_set = d_wdc * config.kd_wdc;
         debugMsg.wdc_err = wdc_error;
+        debugMsg.kp_me_set = wdc_error * config.kp_me;
+        debugMsg.ki_me_set = i_wdc_error * config.ki_me;
+        debugMsg.kd_me_set = d_wdc * config.kd_me;
+        debugMsg.me_err = me_error;
+        debugMsg.kp_mm_set = wdc_error * config.kp_mm;
+        debugMsg.ki_mm_set = i_wdc_error * config.ki_mm;
+        debugMsg.kd_mm_set = d_wdc * config.kd_mm;
+        debugMsg.mm_err = mm_error;
+
         debugMsg.cc_velocity_limit = cc_velocity_limit;
         debugMsg.cs_velocity_limit = cs_velocity_limit;
         debugMsg.wdc_velocity_limit = wdc_velocity_limit;
+        debugMsg.me_velocity_limit = me_velocity_limit;
+        debugMsg.mm_velocity_limit = mm_velocity_limit;
         debugMsg.velocity_limit = velocity_limit;
 
         debug_pub.publish(debugMsg);
