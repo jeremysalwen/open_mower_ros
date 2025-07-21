@@ -71,6 +71,9 @@ bool dfp_is_5v = false;       // DFP is set to 5V Vcc
 std::string language = "en";  // ISO-639-1 (2 char) language code
 int volume = -1;              // -1 = don't change, 0-100 = volume (%)
 
+// Whether mowing is currently enabled
+bool mow_enabled = false;
+
 // Serial port and buffer for the low level connection
 serial::Serial serial_port;
 uint8_t out_buf[1000];
@@ -163,6 +166,7 @@ void convertStatus(xesc_msgs::XescStateStamped &vesc_status, mower_msgs::ESCStat
     }
     ros_esc_status.tacho = vesc_status.state.tacho;
     ros_esc_status.current = vesc_status.state.current_input;
+    ros_esc_status.duty_cycle = vesc_status.state.duty_cycle;
     ros_esc_status.temperature_motor = vesc_status.state.temperature_motor;
     ros_esc_status.temperature_pcb = vesc_status.state.temperature_pcb;
 }
@@ -205,15 +209,9 @@ void publishStatus() {
 
     status_msg.v_battery = last_ll_status.v_system;
     status_msg.v_charge = last_ll_status.v_charge;
-    status_msg.charge_current = last_ll_status.charging_current;
 
+    status_msg.mow_enabled = mow_enabled;
 
-    xesc_msgs::XescStateStamped mow_status, left_status, right_status;
-    if(mow_xesc_interface) {
-        mow_xesc_interface->getStatus(mow_status);
-    } else {
-        mow_status.state.connection_state = xesc_msgs::XescState::XESC_CONNECTION_STATE_DISCONNECTED;
-    }
     left_xesc_interface->getStatus(left_status);
     right_xesc_interface->getStatus(right_status);
 
@@ -272,8 +270,10 @@ void publishActuatorsTimerTask(const ros::TimerEvent &timer_event) {
 
 bool setMowEnabled(mower_msgs::MowerControlSrvRequest &req, mower_msgs::MowerControlSrvResponse &res) {
     if (req.mow_enabled && !is_emergency()) {
+        mow_enabled = true;
         speed_mow = req.mow_direction ? 1 : -1;
     } else {
+        mow_enabled = false;
         speed_mow = 0;
     }
     ROS_INFO_STREAM("Setting mow enabled to " << speed_mow);

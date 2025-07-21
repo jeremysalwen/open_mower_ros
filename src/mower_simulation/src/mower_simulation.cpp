@@ -103,6 +103,7 @@ void publishStatus(const ros::TimerEvent &timer_event) {
         cmd_vel_pub.publish(last_cmd_vel);
     }
 
+    fake_mow_status.stamp = ros::Time::now();
     fake_mow_status.mow_esc_status.temperature_motor = config.temperature_mower;
     fake_mow_status.mow_esc_status.status = mower_msgs::ESCStatus::ESC_STATUS_OK;
     if (config.mower_error) {
@@ -111,6 +112,9 @@ void publishStatus(const ros::TimerEvent &timer_event) {
     if (config.mower_running) {
         fake_mow_status.mow_esc_status.status = mower_msgs::ESCStatus::ESC_STATUS_RUNNING;
     }
+
+    fake_mow_status.mow_esc_status.current = config.cutter_current;
+    fake_mow_status.mow_esc_status.speed_erpm = config.cutter_erpm;
 
     fake_mow_status.v_battery = config.battery_voltage;
 
@@ -135,6 +139,9 @@ void publishStatus(const ros::TimerEvent &timer_event) {
         fake_mow_status.left_esc_status.status = mower_msgs::ESCStatus::ESC_STATUS_OK;
         fake_mow_status.right_esc_status.status = mower_msgs::ESCStatus::ESC_STATUS_OK;
     }
+    fake_mow_status.left_esc_status.duty_cycle = config.left_wheel_DC;
+    fake_mow_status.right_esc_status.duty_cycle = config.right_wheel_DC;
+
     fake_mow_status.emergency = config.emergency_stop;
 
     status_pub.publish(fake_mow_status);
