@@ -122,25 +122,25 @@ void statusReceived(const mower_msgs::Status::ConstPtr &msg) {
         if (!left_esc_received || !right_esc_received) {
             wdc_velocity_limit = 1.0; // No limiting if no ESC data
         } else {
-            double dc = std::max(left_esc_status.duty_cycle, right_esc_status.duty_cycle);
-            wdc_error = (config.wheel_dc_limit - dc) * 20; //bit of gain to keep PID constants similar order
-            if(wdc_error > 1.0)
-                wdc_error = 1.0;
-            else if(wdc_error < -1.0)
-                wdc_error = -1.0;
-            i_wdc_error += wdc_error * dt;
-            if ((i_wdc_error * config.ki_wdc) > 1.0)
-                i_wdc_error = 1.0/config.ki_wdc;
-            else if (i_wdc_error < 0.0)
-                i_wdc_error = 0.0;
-            d_wdc = (wdc_error - last_wdc_error) / dt;
-            last_wdc_error = wdc_error;
-            wdc_velocity_limit = wdc_error * config.kp_wdc + i_wdc_error * config.ki_wdc + d_wdc * config.kd_wdc;
+            // double dc = std::max(left_esc_status.duty_cycle, right_esc_status.duty_cycle);
+            // wdc_error = (config.wheel_dc_limit - dc) * 20; //bit of gain to keep PID constants similar order
+            // if(wdc_error > 1.0)
+            //     wdc_error = 1.0;
+            // else if(wdc_error < -1.0)
+            //     wdc_error = -1.0;
+            // i_wdc_error += wdc_error * dt;
+            // if ((i_wdc_error * config.ki_wdc) > 1.0)
+            //     i_wdc_error = 1.0/config.ki_wdc;
+            // else if (i_wdc_error < 0.0)
+            //     i_wdc_error = 0.0;
+            // d_wdc = (wdc_error - last_wdc_error) / dt;
+            // last_wdc_error = wdc_error;
+            // wdc_velocity_limit = wdc_error * config.kp_wdc + i_wdc_error * config.ki_wdc + d_wdc * config.kd_wdc;
 
-            if (wdc_velocity_limit > 1.0)
-                wdc_velocity_limit = 1.0;
-            else if (wdc_velocity_limit < 0.0)
-                wdc_velocity_limit = 0.0;
+            // if (wdc_velocity_limit > 1.0)
+            //     wdc_velocity_limit = 1.0;
+            // else if (wdc_velocity_limit < 0.0)
+            //     wdc_velocity_limit = 0.0;
         }
     }
 
