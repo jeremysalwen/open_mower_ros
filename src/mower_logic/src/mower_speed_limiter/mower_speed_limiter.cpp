@@ -18,6 +18,7 @@
 
 // Include messages for mower control
 #include "mower_msgs/Status.h"
+#include "mower_msgs/ESCStatus.h"
 #include "mower_logic/SpeedLimiterDebug.h"
 #include "mower_logic/VelocityLimit.h"
 #include "mower_logic/MowerSpeedLimiterConfig.h"
@@ -26,12 +27,24 @@
 ros::Publisher debug_pub;
 ros::Publisher velLim_pub;
 mower_msgs::Status status;
+mower_msgs::ESCStatus left_esc_status, right_esc_status;
+bool left_esc_received = false, right_esc_received = false;
 mower_speed_limiter::MowerSpeedLimiterConfig config;
 dynamic_reconfigure::Server<mower_speed_limiter::MowerSpeedLimiterConfig> *reconfig_server;
 
 
 void reconfigureCB(mower_speed_limiter::MowerSpeedLimiterConfig &c, uint32_t level) {
     config = c;
+}
+
+void leftESCReceived(const mower_msgs::ESCStatus::ConstPtr &msg) {
+    left_esc_status = *msg;
+    left_esc_received = true;
+}
+
+void rightESCReceived(const mower_msgs::ESCStatus::ConstPtr &msg) {
+    right_esc_status = *msg;
+    right_esc_received = true;
 }
 
 
@@ -57,7 +70,7 @@ void statusReceived(const mower_msgs::Status::ConstPtr &msg) {
     if(!config.enable_cc) {
         i_cc_error = 0.0; last_cc_error = 0.0;
     } else {
-        cc_error = config.mow_current_limit - msg->mow_esc_status.current;
+        cc_error = config.mow_current_limit - msg->mower_esc_current;
         i_cc_error += cc_error * dt;
         if ((i_cc_error * config.ki_cc) > 1.0)
             i_cc_error = 1.0/config.ki_cc;
@@ -79,7 +92,7 @@ void statusReceived(const mower_msgs::Status::ConstPtr &msg) {
     if(!config.enable_cs || !msg->mow_enabled) {
         i_cs_error = 0.0; last_cs_error = 0.0;
     } else {
-        cs_error = (std::abs(msg->mow_esc_status.speed_erpm) - config.mow_erpm_limit)/100; //divide to keep PID constants similar order to others
+        cs_error = (std::abs(msg->mower_motor_rpm) - config.mow_erpm_limit)/100; //divide to keep PID constants similar order to others
         if(cs_error > 4.0)
             cs_error = 4.0;
         else if(cs_error < -4.0)
@@ -105,25 +118,30 @@ void statusReceived(const mower_msgs::Status::ConstPtr &msg) {
     if(!config.enable_wdc) {
         i_wdc_error = 0.0; last_wdc_error = 0.0;
     } else {
-        double dc = std::max(msg->left_esc_status.duty_cycle, msg->right_esc_status.duty_cycle);
-        wdc_error = (config.wheel_dc_limit - dc) * 20; //bit of gain to keep PID constants similar order
-        if(wdc_error > 1.0)
-            wdc_error = 1.0;
-        else if(wdc_error < -1.0)
-            wdc_error = -1.0;
-        i_wdc_error += wdc_error * dt;
-        if ((i_wdc_error * config.ki_wdc) > 1.0)
-            i_wdc_error = 1.0/config.ki_wdc;
-        else if (i_wdc_error < 0.0)
-            i_wdc_error = 0.0;
-        d_wdc = (wdc_error - last_wdc_error) / dt;
-        last_wdc_error = wdc_error;
-        wdc_velocity_limit = wdc_error * config.kp_wdc + i_wdc_error * config.ki_wdc + d_wdc * config.kd_wdc;
+        // Only proceed if we have received ESC status data
+        if (!left_esc_received || !right_esc_received) {
+            wdc_velocity_limit = 1.0; // No limiting if no ESC data
+        } else {
+            double dc = std::max(left_esc_status.duty_cycle, right_esc_status.duty_cycle);
+            wdc_error = (config.wheel_dc_limit - dc) * 20; //bit of gain to keep PID constants similar order
+            if(wdc_error > 1.0)
+                wdc_error = 1.0;
+            else if(wdc_error < -1.0)
+                wdc_error = -1.0;
+            i_wdc_error += wdc_error * dt;
+            if ((i_wdc_error * config.ki_wdc) > 1.0)
+                i_wdc_error = 1.0/config.ki_wdc;
+            else if (i_wdc_error < 0.0)
+                i_wdc_error = 0.0;
+            d_wdc = (wdc_error - last_wdc_error) / dt;
+            last_wdc_error = wdc_error;
+            wdc_velocity_limit = wdc_error * config.kp_wdc + i_wdc_error * config.ki_wdc + d_wdc * config.kd_wdc;
 
-        if (wdc_velocity_limit > 1.0)
-            wdc_velocity_limit = 1.0;
-        else if (wdc_velocity_limit < 0.0)
-            wdc_velocity_limit = 0.0;
+            if (wdc_velocity_limit > 1.0)
+                wdc_velocity_limit = 1.0;
+            else if (wdc_velocity_limit < 0.0)
+                wdc_velocity_limit = 0.0;
+        }
     }
 
     //velocity limiting based on esc temperature
@@ -132,7 +150,7 @@ void statusReceived(const mower_msgs::Status::ConstPtr &msg) {
     if(!config.enable_me) {
         i_me_error = 0.0; last_me_error = 0.0;
     } else {
-        me_error = (config.mow_esc_limit - msg->mow_esc_status.temperature_pcb);
+        me_error = (config.mow_esc_limit - msg->mower_esc_temperature);
         i_me_error += me_error * dt;
         if ((i_me_error * config.ki_me) > 1.0)
             i_me_error = 1.0/config.ki_me;
@@ -154,7 +172,7 @@ void statusReceived(const mower_msgs::Status::ConstPtr &msg) {
     if(!config.enable_mm) {
         i_mm_error = 0.0; last_mm_error = 0.0;
     } else {
-        mm_error = (config.mow_motor_limit - msg->mow_esc_status.temperature_motor);
+        mm_error = (config.mow_motor_limit - msg->mower_motor_temperature);
         i_mm_error += mm_error * dt;
         if ((i_mm_error * config.ki_mm) > 1.0)
             i_mm_error = 1.0/config.ki_mm;
@@ -228,7 +246,13 @@ int main(int argc, char **argv) {
     reconfig_server->setCallback(reconfigureCB);
 
     ros::Subscriber status_sub;
-    status_sub = n.subscribe("mower/status", 100, statusReceived);
+    status_sub = n.subscribe("/ll/mower_status", 100, statusReceived);
+    
+    ros::Subscriber left_esc_sub;
+    left_esc_sub = n.subscribe("/ll/diff_drive/left_esc_status", 10, leftESCReceived);
+    
+    ros::Subscriber right_esc_sub;
+    right_esc_sub = n.subscribe("/ll/diff_drive/right_esc_status", 10, rightESCReceived);
 
     debug_pub = n.advertise<mower_logic::SpeedLimiterDebug>("mower_logic/speed_limiter_debug", 1);
 
