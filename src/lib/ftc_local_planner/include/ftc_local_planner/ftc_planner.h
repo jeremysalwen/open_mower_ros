@@ -78,6 +78,7 @@ namespace ftc_local_planner
          * Speed ramp for acceleration and deceleration
          */
         double current_movement_speed;
+        double lookahead_speed;
 
         /**
          * State for point interpolation
@@ -96,6 +97,7 @@ namespace ftc_local_planner
         bool oscillation_warning_ = false;
 
         double distanceLookahead();
+        double velocityLookahead();
         PlannerState update_planner_state();
         void update_control_point(double dt);
         void calculate_velocity_commands(double dt, geometry_msgs::TwistStamped &cmd_vel);

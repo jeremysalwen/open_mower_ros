@@ -309,16 +309,25 @@ namespace ftc_local_planner
             break;
         case FOLLOWING:
         {
-            // Normal planner operation
-            double straight_dist = distanceLookahead();
-            double speed;
-            if (straight_dist >= config.speed_fast_threshold)
+            double speed = 0.0;
+            if(config.speed_slow > 0.0)
             {
-                speed = config.speed_fast;
+                // Normal planner operation
+                double straight_dist = distanceLookahead();
+                
+                if (straight_dist >= config.speed_fast_threshold)
+                {
+                    speed = config.speed_fast;
+                }
+                else
+                {
+                    speed = config.speed_slow;
+                }
             }
             else
             {
-                speed = config.speed_slow;
+                lookahead_speed = velocityLookahead();
+                speed = lookahead_speed;
             }
 
             if (speed > current_movement_speed)
@@ -429,6 +438,73 @@ namespace ftc_local_planner
         angle_error = local_control_point.rotation().eulerAngles(0, 1, 2).z();
     }
 
+       double FTCPlanner::velocityLookahead()
+    {
+        if (global_plan.size() < 2)
+        {
+            ROS_WARN_STREAM("FTCLocalPlannerROS: velocityLookahead, plan too small ");
+            return 0.05;
+        }
+
+        //work out how many points look ahead we need to decelerate to 0 from current speed
+        double decelDist = (current_movement_speed * current_movement_speed) / (2.0 * config.acceleration);
+        double total_dist = 0.0;
+        std::vector<double> distances;
+        std::vector<double> rotations;
+        Eigen::Affine3d last_point = current_control_point;
+        Eigen::Quaternion<double> last_rot(current_control_point.linear());
+        uint32_t i = 0;
+        for (i = current_index + 1; i < global_plan.size(); i++)
+        {
+            Eigen::Affine3d next_point;
+            tf2::fromMsg(global_plan[i].pose, next_point);
+            double dist = abs((next_point.translation() - last_point.translation()).norm());
+            distances.push_back(dist);
+            Eigen::Quaternion<double> next_rot(next_point.linear());
+            rotations.push_back(abs(next_rot.angularDistance(last_rot)));
+            total_dist += dist;
+            last_point = next_point;
+            last_rot = next_rot;
+            if(total_dist >= decelDist)
+                break;
+        }
+
+        double max_speed = config.speed_fast;
+        if(i >= global_plan.size())
+            max_speed = 0.0; //if we are approaching end of the path finish with zero speed
+            
+        if(distances.empty()) 
+        {
+            ROS_WARN_STREAM("FTCLocalPlannerROS: velocityLookahead, no points ");
+            return 0.05;
+        }
+        else{
+            //now go back through the points to calculate max permissible speed
+            
+            for(int32_t i = distances.size()-1;i>=0;i--)
+            {
+                //calculate max speed to allow time for rotations
+                double angle = rotations[i] * (180.0 / M_PI);
+                double time_to_rotate = angle / config.speed_angular;
+                double speed = config.speed_fast;
+                if(time_to_rotate > 0.0)
+                    speed = distances[i]/time_to_rotate;
+
+                //calculate max speed with acceleration from previous step (actually decel but going backwards)
+                max_speed = sqrt((max_speed * max_speed) + (2 * config.acceleration * distances[i]));
+                if(max_speed > config.speed_fast)
+                    max_speed = config.speed_fast;
+                if(speed < max_speed)
+                    max_speed = speed;
+            }
+        }
+
+        if(max_speed < 0.001) max_speed = 0.001;
+
+        return max_speed;
+    }
+
+
     void FTCPlanner::calculate_velocity_commands(double dt, geometry_msgs::TwistStamped &cmd_vel)
     {
         // check, if we're completely done
@@ -481,6 +557,9 @@ namespace ftc_local_planner
         if (current_state == FOLLOWING)
         {
             double lin_speed = lon_error * config.kp_lon + i_lon_error * config.ki_lon + d_lon * config.kd_lon;
+            
+            lin_speed += current_movement_speed * 0.9;  //Temporary bodge, will vary from mower to mower.  Doesn't need to be perfect just somewhere close
+
             if (lin_speed < 0 && config.forward_only)
             {
                 lin_speed = 0;
