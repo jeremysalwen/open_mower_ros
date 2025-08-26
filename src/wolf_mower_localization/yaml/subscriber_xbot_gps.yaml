@@ -1,0 +1,17 @@
+# Configuration for SubscriberXbotGps
+# This subscriber processes xbot_msgs::AbsolutePose messages from xbot_driver_gps
+
+# Covariance handling mode
+# Options: "msg" (use message covariance), "manual" (specify manually), "factor" (scale message covariance)
+cov_mode: "msg"
+
+# Covariance factor (used when cov_mode is "factor")
+cov_factor: 1.0
+
+# Minimum covariance diagonal values to prevent numerical issues
+cov_min: 1e-6
+
+# Manual covariance matrix (used when cov_mode is "manual")
+# cov: [[1.0, 0.0, 0.0],
+#       [0.0, 1.0, 0.0], 
+#       [0.0, 0.0, 1.0]]

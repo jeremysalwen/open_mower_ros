@@ -1,0 +1,10 @@
+extrinsics_fixed: true
+clock_bias_GPS_GLO_dynamic: false
+clock_bias_GPS_GAL_dynamic: false
+clock_bias_GPS_CMP_dynamic: false
+ENU:
+   mode: "ECEF"
+   roll_fixed: true
+   pitch_fixed: true
+   yaw_fixed: true
+   translation_fixed: true

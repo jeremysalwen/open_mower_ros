@@ -1,0 +1,7 @@
+time_tolerance: 0.005         # Time tolerance for joining KFs
+keyframe_vote:
+   voting_active:    false
+apply_loss_function: false
+velocity_local: [1, 0, 0]
+angle_stdev: 0.05
+min_vel_norm: 1

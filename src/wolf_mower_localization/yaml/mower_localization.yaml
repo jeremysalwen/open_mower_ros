@@ -1,0 +1,131 @@
+config:
+  debug: 
+    profiling: false
+    profiling_file: "~/profiling_demo_gnss_imu.txt"
+    print_problem: false
+    print_period: 1
+    print_depth: 4
+    print_constr_by: false
+    print_metric: true
+    print_state_blocks: false
+    
+  problem:
+    node_rate: 100
+    frame_structure: "POV"
+    dimension: 3
+    tree_manager:
+      follow: "sliding_window_dual.yaml" 
+    prior:
+      mode: "fix"
+      time_tolerance: 0.1
+      $state:
+        P: [0,0,0]
+        O: [0,0,0,1]
+        V: [0,0,0]
+      
+  solver:
+    follow: "solver.yaml"
+      
+  map:
+    type: "MapBase"
+    plugin: "core"
+    
+  sensors:
+    -
+      type: "SensorImu"
+      name: "IMU_odometer"
+      plugin: "imu"
+      extrinsic:
+        pose:  [0,0,0, 0,0,0,1]
+      follow: "imu_intrinsics.yaml"
+    -
+      type: "SensorGnss"
+      name: "gnss"
+      plugin: "gnss"
+      extrinsic:
+         pose: [0.0, 0.0, 0.28]
+      follow: "sensor_f9t.yaml"
+    -
+      type: "SensorMotionModel"
+      name: "dynamic_model"
+      plugin: "core"
+
+  processors:
+    -
+      type: "ProcessorImu"
+      name: "processor IMU"
+      sensor_name: "IMU_odometer"
+      plugin: "imu"
+      follow: "processor_imu.yaml"
+    -
+      type: "ProcessorGnssFix"
+      name: "processor gnss"
+      sensor_name: "gnss"
+      plugin: "gnss"
+      follow: "processor_gnss_fix.yaml"
+    -
+      type: "ProcessorFixedWingModel"
+      name: "processor fix wing"
+      sensor_name: "dynamic_model"
+      plugin: "core"
+      follow: "processor_fix_wing.yaml"
+      
+  ROS subscriber:
+    # -
+    #   type: "SubscriberGnssUblox"
+    #   topic: "/ublox_gps/raw_data_stream"
+    #   sensor_name: "gnss"
+    #   package: "wolf_ros_gnss"
+    #   follow: "subscriber_gnss_ublox.yaml"
+    -
+      type: "SubscriberImu"
+      topic: "/ll/imu/data_raw"
+      sensor_name: "IMU_odometer"
+      package: "wolf_ros_imu"
+      follow: "subscriber_imu.yaml"
+    -
+      type: "SubscriberXbotGps"
+      topic: "/ll/position/gps"
+      sensor_name: "gnss"
+      package: "wolf_mower_localization"
+      follow: "subscriber_xbot_gps.yaml"
+      
+  ROS publisher:
+    -
+      type: "PublisherPose"
+      topic: "current_pose"
+      package: "wolf_ros_node"
+      marker_color: [1,0,0,1]
+      line_size: 0.2
+      period: 0.2
+      extrinsics: true
+      sensor: "gnss"
+      frame_id: "map"
+      max_points: 10000
+    # -
+    #   type: "PublisherGnssTf"
+    #   topic: " "
+    #   package: "wolf_ros_gnss"
+    #   period: 0.2
+    #   sensor_gnss_name: "gnss"
+    # -
+    #   type: "PublisherTf"
+    #   topic: " "
+    #   package: "wolf_ros_node"
+    #   period: 0.2
+    #   map_frame_id: "map"
+    #   odom_frame_id: "odom"
+    #   base_frame_id: "base"
+    #   publish_odom_tf: false
+    -
+      type: "PublisherGraph"
+      topic: "graph"
+      package: "wolf_ros_node"
+      period: 0.2
+      viz_scale: 2
+    # -
+    #   type: "PublisherTrackerGnssInfo"
+    #   topic: "gnss_tracker"
+    #   package: "wolf_ros_gnss"
+    #   period: 0.2
+    #   processor_gnss: "processor gnss"

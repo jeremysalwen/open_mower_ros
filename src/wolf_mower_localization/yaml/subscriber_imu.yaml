@@ -1,0 +1,16 @@
+enableable: true
+topic_enable: "gnss_available"
+
+imu_x_axis: 1
+imu_y_axis: 2
+imu_z_axis: 3
+
+cov_source: "msg"
+
+in_degrees: true
+
+static_init_duration: 30.0
+
+lowpass_filter: true
+lowpass_cutoff_freq: 2
+dt: 0.01

@@ -1,0 +1,30 @@
+<!-- OpenMower WOLF Localization Launch File -->
+<launch>
+    <arg name="rviz" default="false" /> 
+    <arg name="profiling" default="false" />
+    <arg name="gdb" default="false" />
+    <arg name="launch_pref" default="" unless="$(eval profiling or gdb)"/>
+    <arg name="launch_pref" value="valgrind --tool=callgrind --callgrind-out-file='callgrind.wolf.%p'" if="$(arg profiling)" />
+    <arg name="launch_pref" value="gdb -ex run --args" if="$(arg gdb)" />
+    
+    <arg name="yaml" default="mower_localization"/>
+    
+    <!-- WOLF Localization Node -->
+    <node type="wolf_ros_node"
+		  name="wolf_mower_localization"
+    	  pkg="wolf_ros_node"
+          required="true"
+          output="screen"
+    	  launch-prefix="$(arg launch_pref)">
+        <param name="~yaml_file_path" value="$(find wolf_mower_localization)/yaml/$(arg yaml).yaml" />
+        <param name="packages_path" value="/workspace/devel/lib" />
+    </node>
+    
+    <!-- Visualization -->
+    <group if="$(arg rviz)">
+    	<node type="rviz"
+          	  name="rviz"
+          	  pkg="rviz"
+          	  args="-d $(find wolf_mower_localization)/rviz/mower_localization.rviz"/>
+    </group>
+</launch>

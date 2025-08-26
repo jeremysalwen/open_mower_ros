@@ -1,0 +1,10 @@
+minimizer: "LEVENBERG_MARQUARDT"
+interrupt_on_problem_change: false
+max_num_iterations: 10
+function_tolerance: 1e-6
+gradient_tolerance: 1e-7
+use_nonmonotonic_steps: false
+period: 1
+n_threads: 2
+compute_cov: false
+verbose: 0

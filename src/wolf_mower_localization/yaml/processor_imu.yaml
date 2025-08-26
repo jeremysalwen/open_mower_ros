@@ -1,0 +1,16 @@
+time_tolerance: 0.0025         # Time tolerance for joining KFs
+unmeasured_perturbation_std: 0.000001
+keyframe_vote:
+    voting_active:      false
+    max_time_span:      1.0   # seconds
+    max_buff_length:    500   # motion deltas
+    dist_traveled:      2.0   # meters
+    angle_turned:       0.1   # radians (1 rad approx 57 deg, approx 60 deg)
+bootstrap:
+    enable: false 
+    method: "G"             # methods: "STATIC", "G" or "V0_G"
+    averaging_length: 0.5  # seconds
+    keyframe_provider_processor_name: "processor_other_name" # Not yet implemented
+apply_loss_function: false
+state_getter: true
+state_priority: 1

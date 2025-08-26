@@ -1,0 +1,8 @@
+type: "TreeManagerSlidingWindowDualRate"
+plugin: "core"
+n_frames: 10
+n_frames_recent: 5
+rate_old_frames: 10
+fix_first_frame: false
+viral_remove_empty_parent: true
+n_fix_first_frames: 0
