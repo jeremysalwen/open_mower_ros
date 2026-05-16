@@ -5,11 +5,12 @@ wb_initial_stdev:       0.00042     # rad/sec - initial bias
 ab_rate_stdev:          0.0001       # m/s2/sqrt(s)
 wb_rate_stdev:          0.0001    # rad/s/sqrt(s)
 dynamic_imu_bias:       false
+prior_bias:             true
 
    # SIMU
    # a_noise:                0.001     # standard deviation of Acceleration noise (same for all the axis) in m/s2
    # w_noise:                0.01    # standard deviation of Gyroscope noise (same for all the axis) in rad/sec
-   # ab_initial_stdev:       0.00     # m/s2    - initial bias 
-   # wb_initial_stdev:       0.00     # rad/sec - initial bias 
-   # ab_rate_stdev:          0.001       # m/s2/sqrt(s)           
+   # ab_initial_stdev:       0.00     # m/s2    - initial bias
+   # wb_initial_stdev:       0.00     # rad/sec - initial bias
+   # ab_rate_stdev:          0.001       # m/s2/sqrt(s)
    # wb_rate_stdev:          0.001    # rad/s/sqrt(s)

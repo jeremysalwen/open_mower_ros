@@ -1,0 +1,24 @@
+process_not_available: false
+publish_fix:
+  enabled: true
+  topic: "RTKLIB_fix"
+gnss_options:
+  sateph: 6    # satellite ephemeris/clock (0:broadcast ephemeris,1:precise ephemeris,2:broadcast + SBAS,3:ephemeris option: broadcast + SSR_APC,4:broadcast + SSR_COM,5: QZSS LEX ephemeris
+  ionoopt: 9   # ionosphere option (0:correction off,1:broadcast mode,2:SBAS model,3:L1/L2 or L1/L5,4:estimation,5:IONEX TEC model,6:QZSS broadcast,7:QZSS LEX ionosphere,8:SLANT TEC mode)
+  tropopt: 2   # troposphere option: (0:correction off,1:Saastamoinen model,2:SBAS model,3:troposphere option: ZTD estimation,4:ZTD+grad estimation,5:ZTD correction,6:ZTD+grad correction)
+  sbascorr: 15 # SBAS option (1:long term correction,2:fast correction,4:ionosphere correction,8:ranging)
+  raim: 1      # apply RAIM n times
+  elmin: 0.26  # elevation min (rad) = 15 degrees
+  maxgdop: 30  # reject threshold of gdop (ground dilusion of precision)
+  constellations:
+    GPS: true
+    SBS: false
+    GLO: false
+    GAL: true
+    QZS: false
+    CMP: false
+    IRN: false
+    LEO: false
+reset_receiver: true
+reset_max_topic_delay: 1
+reset_duration: 20

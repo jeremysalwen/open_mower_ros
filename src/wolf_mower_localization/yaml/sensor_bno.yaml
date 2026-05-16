@@ -1,0 +1,10 @@
+extrinsic:
+   pose: [0,0,0,0,0,0,1]
+a_noise:                0.53     # standard deviation of Acceleration noise (same for all the axis) in m/s2 (1/1000 max value)
+w_noise:                0.011    # standard deviation of Gyroscope noise (same for all the axis) in rad/sec (1/1000 max value)
+prior_bias:             true
+ab_initial_stdev:       0.05     # m/s2    - initial bias
+wb_initial_stdev:       0.01     # rad/sec - initial bias
+dynamic_imu_bias:           false
+ab_rate_stdev:          0.00001    # m/s2/sqrt(s)
+wb_rate_stdev:          0.00001    # rad/s/sqrt(s)

@@ -3,7 +3,9 @@ clock_bias_GPS_GLO_dynamic: false
 clock_bias_GPS_GAL_dynamic: false
 clock_bias_GPS_CMP_dynamic: false
 ENU:
-   mode: "ECEF"
+   mode: "manual"
+   latlonalt: [43.846765784582665, -72.54069908841964, 0.0]
+   latlon_in_degrees: true
    roll_fixed: true
    pitch_fixed: true
    yaw_fixed: true

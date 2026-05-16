@@ -1,0 +1,45 @@
+time_tolerance: 0.1
+apply_loss_function: false
+max_new_features: -1 #unlimited
+remove_outliers: true
+remove_outliers_with_fix: true
+outlier_residual_th: 10
+init_frames: false
+pseudo_ranges: true
+fix: false
+enu_map_fix_dist: 5
+keyframe_vote:
+  voting_active: true
+  max_time_span: 0.5
+  min_features_for_keyframe: 0 #4
+gnss:
+  sateph: 6    # satellite ephemeris/clock: EPHOPT_BRDC(0):broadcast ephemeris, EPHOPT_PREC(1): precise ephemeris, EPHOPT_SBAS(2): broadcast + SBAS, EPHOPT_SSRAPC(3): broadcast + SSR_APC, EPHOPT_SSRCOM(4): broadcast + SSR_COM, EPHOPT_LEX(5): QZSS LEX ephemeris, EPHOPT_SBAS2(6):broadcast + SBAS(sats with SBAS corr and sats with BRDC eph), EPHOPT_SBAS3(7):broadcast + SBAS(EPHOPT_SBAS if possible, otherwise EPHOPT_SBAS2), EPHOPT_SBAS4(8):broadcast + SBAS(EPHOPT_SBAS if possible, otherwise EPHOPT_BRDC)
+  ionoopt: 9   # ionosphere option: IONOOPT_OFF(0):correction off, IONOOPT_BRDC(1):broadcast mode, IONOOPT_SBAS(2):SBAS model, IONOOPT_IFLC(3):L1/L2 or L1/L5, IONOOPT_EST(4):estimation, IONOOPT_TEC(5):IONEX TEC model, IONOOPT_QZS(6):QZSS broadcast, IONOOPT_LEX(7):QZSS LEX ionosphere, IONOOPT_STEC(8):SLANT TEC mode, IONOOPT_SBAS2(9):broadcast + SBAS(sats with SBAS corr and sats with BRDC eph), IONOOPT_SBAS3(10):broadcast + SBAS(IONOOPT_SBAS if possible, otherwise IONOOPT_SBAS2), IONOOPT_SBAS4(8):broadcast + SBAS(IONOOPT_SBAS if possible, otherwise IONOOPT_BRDC)
+  tropopt: 2   # troposphere option: (0:correction off,1:Saastamoinen model,2:SBAS model,3:troposphere option: ZTD estimation,4:ZTD+grad estimation,5:ZTD correction,6:ZTD+grad correction)
+  sbascorr: 15 # SBAS option (1:long term correction,2:fast correction,4:ionosphere correction,8:ranging)
+  raim: 1      # apply RAIM
+  elmin: 0.26  # elevation min (rad) = 15 degrees
+  maxgdop: 30  # reject threshold of gdop (ground dilusion of precision)
+  min_sbas_sats: 5 # used in case of EPHOPT_SBAS3, EPHOPT_SBAS4, IONOOPT_SBAS3, IONOOPT_SBAS4
+  constellations:
+    GPS: true
+    SBS: false
+    GLO: false
+    GAL: true
+    QZS: false
+    CMP: false
+    IRN: false
+    LEO: false
+  tdcp:
+    enabled: true
+    structure: consecutive
+    corr_iono: true
+    corr_tropo: true
+    corr_clock: true
+    loss_function: false
+    time_window: 10      # s
+    sigma_atm: 0.0016 #1.6mm/sqrt(s)       # m/sqrt(s)
+    sigma_carrier: 0.0011 #1.1mm/sqrt(s)   # m
+    multi_freq: false
+    remove_outliers: false
+    batch: false

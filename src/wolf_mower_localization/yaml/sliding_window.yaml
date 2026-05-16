@@ -1,0 +1,5 @@
+type: "TreeManagerSlidingWindow"
+plugin: "core"
+n_frames: 10
+viral_remove_empty_parent: true
+n_fix_first_frames: 0

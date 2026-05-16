@@ -13,5 +13,5 @@ cov_min: 1e-6
 
 # Manual covariance matrix (used when cov_mode is "manual")
 # cov: [[1.0, 0.0, 0.0],
-#       [0.0, 1.0, 0.0], 
+#       [0.0, 1.0, 0.0],
 #       [0.0, 0.0, 1.0]]

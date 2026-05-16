@@ -1,0 +1,11 @@
+time_tolerance: 0.01
+unmeasured_perturbation_std: 0.01
+keyframe_vote:
+  voting_active: false
+  max_time_span: 1.0
+  max_buff_length: 50
+  dist_traveled: 1.0
+  angle_turned: 0.2
+apply_loss_function: false
+state_getter: true
+state_priority: 1

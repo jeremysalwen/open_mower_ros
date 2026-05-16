@@ -1,35 +1,35 @@
 config:
-  debug: 
+  debug:
     profiling: false
     profiling_file: "~/profiling_demo_gnss_imu.txt"
-    print_problem: false
+    print_problem: true
     print_period: 1
     print_depth: 4
     print_constr_by: false
     print_metric: true
-    print_state_blocks: false
-    
+    print_state_blocks: true
+
   problem:
     node_rate: 100
     frame_structure: "POV"
     dimension: 3
     tree_manager:
-      follow: "sliding_window_dual.yaml" 
+      follow: "sliding_window.yaml"
     prior:
-      mode: "fix"
+      mode: "nothing"
       time_tolerance: 0.1
       $state:
         P: [0,0,0]
         O: [0,0,0,1]
         V: [0,0,0]
-      
+
   solver:
     follow: "solver.yaml"
-      
+
   map:
     type: "MapBase"
     plugin: "core"
-    
+
   sensors:
     -
       type: "SensorImu"
@@ -69,14 +69,8 @@ config:
       sensor_name: "dynamic_model"
       plugin: "core"
       follow: "processor_fix_wing.yaml"
-      
+
   ROS subscriber:
-    # -
-    #   type: "SubscriberGnssUblox"
-    #   topic: "/ublox_gps/raw_data_stream"
-    #   sensor_name: "gnss"
-    #   package: "wolf_ros_gnss"
-    #   follow: "subscriber_gnss_ublox.yaml"
     -
       type: "SubscriberImu"
       topic: "/ll/imu/data_raw"
@@ -89,7 +83,7 @@ config:
       sensor_name: "gnss"
       package: "wolf_mower_localization"
       follow: "subscriber_xbot_gps.yaml"
-      
+
   ROS publisher:
     -
       type: "PublisherPose"
@@ -102,6 +96,13 @@ config:
       sensor: "gnss"
       frame_id: "map"
       max_points: 10000
+    -
+      type: "PublishGnssFix"
+      topic: "gnss_fix"
+      package: "wolf_ros_gnss"
+      period: 0.2
+      sensor: "gnss"
+      frame_id: "map"
     # -
     #   type: "PublisherGnssTf"
     #   topic: " "
@@ -123,9 +124,3 @@ config:
       package: "wolf_ros_node"
       period: 0.2
       viz_scale: 2
-    # -
-    #   type: "PublisherTrackerGnssInfo"
-    #   topic: "gnss_tracker"
-    #   package: "wolf_ros_gnss"
-    #   period: 0.2
-    #   processor_gnss: "processor gnss"

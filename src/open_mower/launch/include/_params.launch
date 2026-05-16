@@ -77,7 +77,7 @@
                value="$(env OM_DATUM_LAT)"/>
         <param unless="$(optenv OM_USE_RELATIVE_POSITION False)" name="ll/services/gps/datum_long"
                value="$(env OM_DATUM_LONG)"/>
-        <param unless="$(optenv OM_USE_RELATIVE_POSITION False)" name="ll/services/gps/datum_height" value="0"/>
+        <param unless="$(optenv OM_USE_RELATIVE_POSITION False)" name="ll/services/gps/datum_height" value="306"/>
 
 
         <!-- xbot_positioning -->

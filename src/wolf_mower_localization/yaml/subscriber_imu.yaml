@@ -5,7 +5,7 @@ imu_x_axis: 1
 imu_y_axis: 2
 imu_z_axis: 3
 
-cov_source: "msg"
+cov_source: "sensor"
 
 in_degrees: true
 
