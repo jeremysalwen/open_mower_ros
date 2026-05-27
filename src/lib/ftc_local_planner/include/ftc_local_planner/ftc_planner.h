@@ -58,6 +58,8 @@ namespace ftc_local_planner
         ros::Publisher progress_pub;
         ros::Publisher obstacle_marker_pub;
 
+        ros::Subscriber status_sub;
+
         FTCPlannerConfig config;
 
         Eigen::Affine3d current_control_point;

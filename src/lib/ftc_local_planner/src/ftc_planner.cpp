@@ -3,6 +3,7 @@
 
 #include <pluginlib/class_list_macros.h>
 #include "mbf_msgs/ExePathAction.h"
+#include "mower_logic/VelocityLimit.h"
 
 PLUGINLIB_EXPORT_CLASS(ftc_local_planner::FTCPlanner, mbf_costmap_core::CostmapController)
 
@@ -12,6 +13,20 @@ PLUGINLIB_EXPORT_CLASS(ftc_local_planner::FTCPlanner, mbf_costmap_core::CostmapC
 
 namespace ftc_local_planner
 {
+    double velocity_limit = 1.0;
+    ros::Time vel_limit_time(0.0);
+
+    void velocityLimitReceived(const mower_logic::VelocityLimit::ConstPtr &msg) {    
+
+        double loc_velocity_limit = msg->velocity_limit;
+        if(loc_velocity_limit > 1.0) 
+            loc_velocity_limit = 1.0;
+        else if(loc_velocity_limit < 0.05) 
+            loc_velocity_limit = 0.05;
+
+        velocity_limit = loc_velocity_limit;
+        vel_limit_time = ros::Time::now();
+    }
 
     FTCPlanner::FTCPlanner()
     {
@@ -37,6 +52,9 @@ namespace ftc_local_planner
         dynamic_reconfigure::Server<FTCPlannerConfig>::CallbackType cb = boost::bind(&FTCPlanner::reconfigureCB, this,
                                                                                      _1, _2);
         reconfig_server->setCallback(cb);
+
+        ros::NodeHandle n;
+        status_sub = n.subscribe("/mower/velocity_limit", 0, velocityLimitReceived, ros::TransportHints().tcpNoDelay(true));
 
         current_state = PRE_ROTATE;
 
@@ -321,6 +339,10 @@ namespace ftc_local_planner
                 speed = config.speed_slow;
             }
 
+            //not sure where best to do this, here respects accel limits but will slow response time
+            speed = speed * velocity_limit;
+
+
             if (speed > current_movement_speed)
             {
                 // accelerate
@@ -576,6 +598,7 @@ namespace ftc_local_planner
             // speeds
             debugPidMsg.ang_speed = cmd_vel.twist.angular.z;
             debugPidMsg.lin_speed = cmd_vel.twist.linear.x;
+            debugPidMsg.velocity_limit = velocity_limit;
 
             pubPid.publish(debugPidMsg);
         }

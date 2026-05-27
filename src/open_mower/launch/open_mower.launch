@@ -37,5 +37,9 @@
 
     <node pkg="mower_logic" type="monitoring" name="monitoring" output="screen" respawn="true" respawn_delay="10"/>
 
+    <node pkg="mower_logic" type="mower_speed_limiter" name="mower_speed_limiter" output="screen" respawn="true" respawn_delay="10">
+        <rosparam file="$(find open_mower)/params/speed_limiter.yaml"  command="load"/>
+    </node>
+
     <include file="$(find open_mower)/launch/include/_params.launch"/>
 </launch>

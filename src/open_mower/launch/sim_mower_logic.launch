@@ -58,6 +58,10 @@
 
     <node pkg="mower_logic" type="monitoring" name="monitoring" output="log" respawn="true" respawn_delay="10"/>
 
+    <node pkg="mower_logic" type="mower_speed_limiter" name="mower_speed_limiter" output="screen" respawn="true" respawn_delay="10">
+        <rosparam file="$(find open_mower)/params/speed_limiter.yaml"  command="load"/>
+    </node>
+
     <node pkg="xbot_monitoring" type="heatmap_generator" name="heatmap_generator" output="screen" respawn="true"
           respawn_delay="10" unless="$(eval optenv('OM_HEATMAP_SENSOR_IDS', 'UNSET') == 'UNSET')">
         <param name="sensor_ids" value="$(optenv OM_HEATMAP_SENSOR_IDS)"/>
