@@ -567,7 +567,7 @@ void buildMap() {
           grid_map::Position endPos(PersistencePaths[j].poses[i + 1].pose.position.x,
                                     PersistencePaths[j].poses[i + 1].pose.position.y);
 
-          for (const auto &area : map_data.areas) {
+          for (const auto& area : map_data.areas) {
             if (!area.active) continue;
             if (std::find(persistAreaTypes.begin(), persistAreaTypes.end(), area.type) == persistAreaTypes.end())
               continue;
@@ -843,14 +843,14 @@ void convertLegacyMapToJson() {
                   << map_data.areas.size() << " areas and " << map_data.docking_stations.size() << " docking stations");
 }
 
-bool persistNextGlobalPlan(mower_map::PersistNextGlobalPlanSrvRequest &req,
-                           mower_map::PersistNextGlobalPlanSrvResponse &res) {
+bool persistNextGlobalPlan(mower_map::PersistNextGlobalPlanSrvRequest& req,
+                           mower_map::PersistNextGlobalPlanSrvResponse& res) {
   ROS_INFO_STREAM("Got persistNextGlobalPlan call with value: " << (req.persist ? "True" : "False"));
   persistNextGPlan = req.persist;
   return true;
 }
 
-void FTCPlannerPathReceived(const nav_msgs::Path &msg) {
+void FTCPlannerPathReceived(const nav_msgs::Path& msg) {
   if (persist_mode == ePersistMode::NONE) {
     PersistencePaths.clear();
   } else {
@@ -869,7 +869,7 @@ void FTCPlannerPathReceived(const nav_msgs::Path &msg) {
       rosbag::Bag bag;
       bag.open("persistPaths.bag", rosbag::bagmode::Write);
 
-      for (auto &path : PersistencePaths) {
+      for (auto& path : PersistencePaths) {
         bag.write("persist_paths", ros::Time::now(), path);
       }
 
@@ -883,7 +883,7 @@ void readPersistPathsFromFile(void) {
   rosbag::Bag bag;
   try {
     bag.open("persistPaths.bag");
-  } catch (rosbag::BagIOException &e) {
+  } catch (rosbag::BagIOException& e) {
     ROS_WARN("mower_map_service: Error opening stored persisted paths.");
     return;
   }
@@ -927,7 +927,8 @@ int main(int argc, char** argv) {
   }
 
   paramNh.getParam("persist_mode", persist_mode);
-  if ((persist_mode > ePersistMode::MAP_AREAS) || (persist_mode < ePersistMode::NONE)) persist_mode = ePersistMode::NONE;
+  if ((persist_mode > ePersistMode::MAP_AREAS) || (persist_mode < ePersistMode::NONE))
+    persist_mode = ePersistMode::NONE;
   paramNh.getParam("persist_num_paths", persist_num_paths);
   if (persist_num_paths > 30) persist_num_paths = 30;
   if (persist_num_paths < 0) {
