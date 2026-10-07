@@ -217,13 +217,13 @@ void statusReceived(const mower_msgs::Status::ConstPtr& msg) {
     debugMsg.ki_wdc_set = i_wdc_error * config.ki_wdc;
     debugMsg.kd_wdc_set = d_wdc * config.kd_wdc;
     debugMsg.wdc_err = wdc_error;
-    debugMsg.kp_me_set = wdc_error * config.kp_me;
-    debugMsg.ki_me_set = i_wdc_error * config.ki_me;
-    debugMsg.kd_me_set = d_wdc * config.kd_me;
+    debugMsg.kp_me_set = me_error * config.kp_me;
+    debugMsg.ki_me_set = i_me_error * config.ki_me;
+    debugMsg.kd_me_set = d_me * config.kd_me;
     debugMsg.me_err = me_error;
-    debugMsg.kp_mm_set = wdc_error * config.kp_mm;
-    debugMsg.ki_mm_set = i_wdc_error * config.ki_mm;
-    debugMsg.kd_mm_set = d_wdc * config.kd_mm;
+    debugMsg.kp_mm_set = mm_error * config.kp_mm;
+    debugMsg.ki_mm_set = i_mm_error * config.ki_mm;
+    debugMsg.kd_mm_set = d_mm * config.kd_mm;
     debugMsg.mm_err = mm_error;
 
     debugMsg.cc_velocity_limit = cc_velocity_limit;
