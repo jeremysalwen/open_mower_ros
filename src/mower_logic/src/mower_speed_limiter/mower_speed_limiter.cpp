@@ -62,6 +62,12 @@ void statusReceived(const mower_msgs::Status::ConstPtr& msg) {
   double dt = (msg->stamp - last_status.stamp).toSec();
   last_status = *msg;
 
+  // A repeated stamp (mower_comms_v2 republishes the last status when the mow motor is switched) would make the
+  // derivative terms divide by zero.
+  if (dt <= 0.0) {
+    return;
+  }
+
   // velocity limiting based on mow current (use if erpm not available)
   static double i_cc_error = 1.0, last_cc_error = 0.0;
   double cc_velocity_limit = 1.0, cc_error = 0.0, d_cc = 0.0;
