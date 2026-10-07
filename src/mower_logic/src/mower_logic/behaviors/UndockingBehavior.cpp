@@ -36,7 +36,9 @@ extern void registerActions(std::string prefix, const std::vector<xbot_msgs::Act
 UndockingBehavior UndockingBehavior::INSTANCE(&MowingBehavior::INSTANCE);
 UndockingBehavior UndockingBehavior::RETRY_INSTANCE(&DockingBehavior::INSTANCE);
 
-UndockingBehavior::UndockingBehavior() {
+UndockingBehavior::UndockingBehavior(Behavior* next) {
+  this->nextBehavior = next;
+
   xbot_msgs::ActionInfo abort_undocking_action;
   abort_undocking_action.action_id = "abort_undocking";
   abort_undocking_action.enabled = true;
@@ -221,10 +223,6 @@ bool UndockingBehavior::waitForGPS() {
   gpsRequired = true;
 
   return true;
-}
-
-UndockingBehavior::UndockingBehavior(Behavior* next) {
-  this->nextBehavior = next;
 }
 
 void UndockingBehavior::command_home() {

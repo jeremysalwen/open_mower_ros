@@ -45,8 +45,6 @@ class UndockingBehavior : public Behavior {
   bool waitForGPS();
 
  public:
-  UndockingBehavior();
-
   std::string state_name() override;
 
   Behavior* execute() override;
