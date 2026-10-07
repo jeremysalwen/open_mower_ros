@@ -326,7 +326,7 @@ int main(int argc, char** argv) {
   ros::init(argc, argv, "monitoring");
 
   n = new ros::NodeHandle();
-  paramNh = new ros::NodeHandle("/mower_comms");
+  paramNh = new ros::NodeHandle("/ll/services/diff_drive");
   ros::NodeHandle logicParamNh{"/mower_logic"};
   ros::NodeHandle powerParamNh{"/ll/services/power"};
 
