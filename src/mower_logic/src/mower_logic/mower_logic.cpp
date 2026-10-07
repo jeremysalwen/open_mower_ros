@@ -761,7 +761,7 @@ int main(int argc, char** argv) {
   }
 
   ROS_INFO("Waiting for a pose message");
-  while (!power_state_subscriber.hasMessage()) {
+  while (!pose_state_subscriber.hasMessage()) {
     if (!ros::ok()) {
       delete (reconfigServer);
       delete (mbfClient);
