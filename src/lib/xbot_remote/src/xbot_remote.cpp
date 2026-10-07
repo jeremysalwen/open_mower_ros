@@ -77,6 +77,7 @@ void* server_thread(void* arg) {
         std::cout << "other exception" << std::endl;
         exit(1);
     }
+    return nullptr;
 }
 
 int main(int argc, char **argv) {
