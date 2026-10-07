@@ -558,7 +558,7 @@ bool planPath(slic3r_coverage_planner::PlanPathRequest &req, slic3r_coverage_pla
                                   (b_firstPoint.x - prev_point->x) * (b_firstPoint.x - prev_point->x) +
                                   (b_firstPoint.y - prev_point->y) * (b_firstPoint.y - prev_point->y)
                           );
-                          return distance_a >= distance_b;
+                          return distance_a > distance_b;
                       });
             ordered_obstacle_outlines.push_back(obstacle_outlines.back());
             obstacle_outlines.pop_back();
