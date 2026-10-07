@@ -173,8 +173,9 @@ void power_received(const mower_msgs::Power::ConstPtr& msg) {
     sensor_data.stamp = msg->stamp;
     sensor_data.data = msg->charge_current;
 
+    // The sensor isn't registered (and its publisher not advertised) if the charging current is ignored
     auto sc_it = sensor_configs.find("om_charge_current");
-    if (sc_it != std::end(sensor_configs)) {
+    if (sc_it != std::end(sensor_configs) && (!sc_it->second.existCB || sc_it->second.existCB())) {
       sc_it->second.data_pub.publish(sensor_data);
     }
   }
