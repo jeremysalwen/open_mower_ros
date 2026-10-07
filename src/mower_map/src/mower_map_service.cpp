@@ -862,8 +862,7 @@ void FTCPlannerPathReceived(const nav_msgs::Path& msg) {
         PersistencePaths.erase(PersistencePaths.begin());
       }
 
-      ROS_INFO_STREAM("mower_map_service: Persisted FTC global plan with " << PersistencePaths.back().poses.size()
-                                                                           << "points");
+      ROS_INFO_STREAM("mower_map_service: Persisted FTC global plan with " << msg.poses.size() << " points");
       ROS_INFO_STREAM("mower_map_service: Total paths currently persisted: " << PersistencePaths.size());
 
       rosbag::Bag bag;
