@@ -658,10 +658,11 @@ void checkAndSendConfig() {
   // clang-format on
 
   // Parse emergency_input_config and set hall_configs
-  char* token = strtok(strdup(mower_logic_config.emergency_input_config.c_str()), ",");
+  char* emergency_input_config = strdup(mower_logic_config.emergency_input_config.c_str());
+  char* token = strtok(emergency_input_config, ",");
   bool low_active;
   unsigned int hall_idx = 0;
-  while (token != NULL) {
+  while (token != NULL && hall_idx < MAX_HALL_INPUTS) {
     low_active = false;
     while (*token != 0) {
       switch (std::toupper(*token)) {
@@ -677,6 +678,7 @@ void checkAndSendConfig() {
     token = strtok(NULL, ",");
     hall_idx++;
   }
+  free(emergency_input_config);
 
   if (dirty) configTracker.setDirty();
 }
