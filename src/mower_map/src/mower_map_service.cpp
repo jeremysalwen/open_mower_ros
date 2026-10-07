@@ -203,8 +203,9 @@ geometry_msgs::Pose fake_obstacle_pose;
 // The grid map. This is built from the polygons loaded from the file.
 grid_map::GridMap map;
 
-// Path persistence: bias the planner toward reusing previously-driven paths by adding their (low) cost to the
-// navigation costmap. The persisted paths are kept within areas of the configured type.
+// Path persistence: bias the planner away from previously driven paths by adding a low (non-lethal) cost along them to
+// the navigation costmap, with more recent paths getting a higher cost. Only path segments inside an area of the
+// configured type are used.
 enum ePersistMode {
   NONE = 0,
   PERSIST_AREAS = 1,
@@ -410,7 +411,7 @@ void visualizeAreas() {
  *
  * Then, all obstacles are marked as occupied.
  *
- * Finally, a blur is applied to the map so that it is expensive, but not completely forbidden to drive near boundaries.
+ * Finally, if path persistence is enabled, the persisted paths are drawn on top with a blurred, non-lethal cost.
  */
 void buildMap() {
   // First, calculate the size of the map by finding the min and max values for x and y.
