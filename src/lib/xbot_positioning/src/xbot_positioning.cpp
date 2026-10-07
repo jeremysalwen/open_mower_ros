@@ -99,6 +99,7 @@ void onImu(const sensor_msgs::Imu::ConstPtr &msg) {
         } else {
             ROS_WARN("Skipped gyro calibration");
             has_gyro = true;
+            last_imu = *msg;
             return;
         }
     }
