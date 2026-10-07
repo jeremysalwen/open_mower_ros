@@ -88,8 +88,6 @@ serial::Serial serial_port;
 uint8_t out_buf[1000];
 ros::Time last_cmd_vel(0.0);
 
-boost::crc_ccitt_type crc;
-
 mower_msgs::HighLevelStatus last_high_level_status;
 
 xesc_driver::XescDriver* mow_xesc_interface;
@@ -146,7 +144,7 @@ void publishActuators() {
                                    .emergency_requested = (!emergency_low_level && emergency_high_level),
                                    .emergency_release_requested = ll_clear_emergency};
 
-  crc.reset();
+  boost::crc_ccitt_type crc;
   crc.process_bytes(&heartbeat, sizeof(struct ll_heartbeat) - 2);
   heartbeat.crc = crc.checksum();
 
@@ -352,7 +350,7 @@ void publishLowLevelConfig(const uint8_t pkt_type) {
   struct ll_high_level_config* buf_config = (struct ll_high_level_config*)&buf[1];
 
   // CRC
-  crc.reset();
+  boost::crc_ccitt_type crc;
   crc.process_bytes(buf, sizeof(struct ll_high_level_config) + 1);  // + type
   buf[size - 1] = (crc.checksum() >> 8) & 0xFF;
   buf[size - 2] = crc.checksum() & 0xFF;
@@ -451,7 +449,7 @@ void highLevelStatusReceived(const mower_msgs::HighLevelStatus::ConstPtr& msg) {
                                          .current_mode = msg->state,
                                          .gps_quality = static_cast<uint8_t>(msg->gps_quality_percent * 100.0)};
 
-  crc.reset();
+  boost::crc_ccitt_type crc;
   crc.process_bytes(&hl_state, sizeof(struct ll_high_level_state) - 2);
   hl_state.crc = crc.checksum();
 
@@ -827,7 +825,7 @@ int main(int argc, char** argv) {
           ROS_INFO_STREAM("Got empty packet from Low Level Board");
         } else {
           // We have at least 1 byte of data, check the CRC
-          crc.reset();
+          boost::crc_ccitt_type crc;
           // We start at the second byte (ignore the type) and process (data_size- byte for type - 2 bytes for CRC)
           // bytes.
           crc.process_bytes(buffer_decoded, data_size - 2);
