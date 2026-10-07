@@ -467,6 +467,10 @@ bool AreaRecordingBehavior::getDockingPosition(geometry_msgs::Pose& pos) {
 
     auto odom_ptr =
         ros::topic::waitForMessage<xbot_msgs::AbsolutePose>("/xbot_positioning/xb_pose", ros::Duration(1, 0));
+    if (!odom_ptr) {
+      ROS_ERROR_STREAM("No pose received, could not record first docking position");
+      return false;
+    }
 
     first_docking_pos = odom_ptr->pose.pose;
     has_first_docking_pos = true;
@@ -477,6 +481,10 @@ bool AreaRecordingBehavior::getDockingPosition(geometry_msgs::Pose& pos) {
 
     auto odom_ptr =
         ros::topic::waitForMessage<xbot_msgs::AbsolutePose>("/xbot_positioning/xb_pose", ros::Duration(1, 0));
+    if (!odom_ptr) {
+      ROS_ERROR_STREAM("No pose received, could not record second docking position");
+      return false;
+    }
 
     pos.position = odom_ptr->pose.pose.position;
 
