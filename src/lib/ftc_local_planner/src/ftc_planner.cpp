@@ -662,9 +662,9 @@ namespace ftc_local_planner
         {
             geometry_msgs::PoseStamped x_pose;
             int index = current_index + i;
-            if (index > global_plan.size())
+            if (index >= global_plan.size())
             {
-                index = global_plan.size();
+                index = global_plan.size() - 1;
             }
             x_pose = global_plan[index];
 
