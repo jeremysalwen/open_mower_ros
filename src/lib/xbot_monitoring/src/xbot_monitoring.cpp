@@ -739,6 +739,11 @@ int main(int argc, char **argv) {
         ROS_INFO_STREAM("Using external MQTT broker: " << external_mqtt_hostname << ":" << external_mqtt_port << " with topic prefix: " + external_mqtt_topic_prefix);
     }
 
+    // Advertise the publishers used by the MQTT callbacks before connecting, so that no message can arrive first
+    cmd_vel_pub = n->advertise<geometry_msgs::Twist>("xbot_monitoring/remote_cmd_vel", 1);
+    action_pub = n->advertise<std_msgs::String>("xbot/action", 1);
+    rpc_request_pub = n->advertise<xbot_mqtt::RpcRequest>(xbot_mqtt::TOPIC_REQUEST, 100);
+
     // First setup MQTT
     setupMqttClient();
 
@@ -748,10 +753,6 @@ int main(int argc, char **argv) {
     ros::Subscriber mapSubscriber = n->subscribe("mower_map_service/json_map", 10, map_callback);
     ros::Subscriber mapOverlaySubscriber = n->subscribe("xbot_monitoring/map_overlay", 10, map_overlay_callback);
 
-    cmd_vel_pub = n->advertise<geometry_msgs::Twist>("xbot_monitoring/remote_cmd_vel", 1);
-    action_pub = n->advertise<std_msgs::String>("xbot/action", 1);
-
-    rpc_request_pub = n->advertise<xbot_mqtt::RpcRequest>(xbot_mqtt::TOPIC_REQUEST, 100);
     ros::Subscriber rpc_response_sub = n->subscribe(xbot_mqtt::TOPIC_RESPONSE, 100, rpc_response_callback);
     ros::Subscriber rpc_error_sub = n->subscribe(xbot_mqtt::TOPIC_ERROR, 100, rpc_error_callback);
     ros::ServiceServer register_methods_service = n->advertiseService(xbot_mqtt::SERVICE_REGISTER_METHODS, register_methods);
